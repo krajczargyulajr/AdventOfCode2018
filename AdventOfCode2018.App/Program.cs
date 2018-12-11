@@ -9,7 +9,7 @@ namespace AdventOfCode2018.App
         {
             Console.WriteLine("Hello World! Advent Of Code 2018 Solutions - Gyula Krajczar");
 
-            var challenge = new Day4();
+            var challenge = new Day5();
             challenge.Run();
 
             Console.ReadLine();

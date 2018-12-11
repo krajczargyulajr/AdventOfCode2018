@@ -6,12 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Challenges\" />
     <Folder Include="Challenges\1\" />
     <Folder Include="Challenges\2\" />
     <Folder Include="Challenges\3\" />
     <Folder Include="Challenges\4\" />
-    <Folder Include="Extensions\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Challenges\1\Day1.cs">
@@ -31,6 +29,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Challenges\4\Day4_Input1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Challenges\5\Day5_Input1.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
