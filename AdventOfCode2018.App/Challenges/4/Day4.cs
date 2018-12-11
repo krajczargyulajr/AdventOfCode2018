@@ -1,8 +1,8 @@
-﻿using System;
+﻿using AdventOfCode2018.App.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using AdventOfCode2018.App.Extensions;
 
 namespace AdventOfCode2018.App.Challenges
 {
@@ -60,11 +60,11 @@ namespace AdventOfCode2018.App.Challenges
             records = records.OrderBy(x => x.DateTime).ToList();
 
             var guardTimeline = new Dictionary<int, Timeline>();
-            var currentGuardId = -1;
+            Timeline currentTimeline = null;
 
             foreach (var record in records)
             {
-                if (currentGuardId == -1 && record.GetType() != typeof(ShiftStartRecord))
+                if (currentTimeline == null && record.GetType() != typeof(ShiftStartRecord))
                 {
                     Console.WriteLine("List doesn't start with shift start");
                     break;
@@ -73,27 +73,96 @@ namespace AdventOfCode2018.App.Challenges
                 switch (record)
                 {
                     case ShiftStartRecord shiftStart:
+                        if (!guardTimeline.ContainsKey(shiftStart.GuardId))
+                        {
+                            guardTimeline.Add(shiftStart.GuardId, new Timeline());
+                        }
+
+                        currentTimeline?.Close(shiftStart.Minute);
+                        currentTimeline = guardTimeline[shiftStart.GuardId];
                         break;
                     case AsleepRecord sleepStart:
+                        currentTimeline.FallAsleep(sleepStart.Minute);
                         break;
                     case WakeUpRecord sleepEnd:
+                        currentTimeline.Awake(sleepEnd.Minute);
                         break;
-
                 }
             }
+
+            foreach (var (guardId, timeline) in guardTimeline)
+            {
+                Console.WriteLine($"#{guardId.ToString().PadLeft(5)} ({timeline.TotalMinutes.ToString().PadLeft(5)}): {timeline.ToString()}");
+            }
+
+            var max = guardTimeline.OrderByDescending(x => x.Value.TotalMinutes).First();
+            var maxMinute = max.Value.Breakdown.OrderByDescending(x => x.Value).First().Key;
+            Console.WriteLine($"Answer1: {max.Key * maxMinute}");
+
+            var max2 = guardTimeline.OrderByDescending(x => x.Value.MaxValue).First();
+
+            Console.WriteLine($"Answer2: {max2.Key * max2.Value.MaxMinute}");
         }
     }
 
     public class Timeline
     {
-        public int TotalMinutes { get; set; } = 0;
-
         public Dictionary<int, int> Breakdown = new Dictionary<int, int>();
+
+        public int TotalMinutes => Breakdown.Values.Sum();
+
+        private KeyValuePair<int, int> max => Breakdown.OrderByDescending(x => x.Value).First();
+        public int MaxValue => max.Value;
+        public int MaxMinute => max.Key;
+
+
+        public Timeline()
+        {
+            for (var i = 0; i < 59; ++i)
+            {
+                Breakdown[i] = 0;
+            }
+        }
+
+        // 0 - awake, 1 - sleeping
+        private int state = 0;
+        private int sleepingSince = -1;
+
+        public void Close(int minute)
+        {
+            if (state == 1) // sleeping
+            {
+                Awake(minute);
+            }
+        }
+
+        public void FallAsleep(int minute)
+        {
+            state = 1;
+            sleepingSince = minute;
+        }
+
+        public void Awake(int minute)
+        {
+            for (var i = sleepingSince; i < minute; ++i)
+            {
+                Breakdown[i]++;
+            }
+
+            state = 0;
+        }
+
+        public override string ToString()
+        {
+            return string.Join(' ', Breakdown.Values.Select(x => x.ToString().PadLeft(2)));
+        }
     }
 
     public abstract class Record
     {
         public DateTime DateTime { get; set; }
+
+        public int Minute => DateTime.Minute;
     }
 
     public class ShiftStartRecord : Record

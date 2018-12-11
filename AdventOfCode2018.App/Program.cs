@@ -1,5 +1,5 @@
-﻿using System;
-using AdventOfCode2018.App.Challenges;
+﻿using AdventOfCode2018.App.Challenges;
+using System;
 
 namespace AdventOfCode2018.App
 {
@@ -9,7 +9,7 @@ namespace AdventOfCode2018.App
         {
             Console.WriteLine("Hello World! Advent Of Code 2018 Solutions - Gyula Krajczar");
 
-            var challenge = new Day3();
+            var challenge = new Day4();
             challenge.Run();
 
             Console.ReadLine();
